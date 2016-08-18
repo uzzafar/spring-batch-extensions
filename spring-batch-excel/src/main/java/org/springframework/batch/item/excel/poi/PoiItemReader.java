@@ -44,14 +44,17 @@ public class PoiItemReader<T> extends AbstractExcelItemReader<T> {
 
     @Override
     protected Sheet getSheet(final int sheet) {
-        return new PoiSheet(this.workbook.getSheetAt(sheet));
+        if(this.workbook.getNumberOfSheets()>1)
+            return new PoiSheet(this.workbook.getSheetAt(sheet));
+        else
+            return new PoiSheet(this.workbook.getSheetAt(0));
     }
 
     @Override
     protected int getNumberOfSheets() {
         return this.workbook.getNumberOfSheets();
     }
-
+    String name;
     @Override
     protected void doClose() throws Exception {
         // As of Apache POI 3.11 there is a close method on the Workbook, prior version
@@ -78,6 +81,7 @@ public class PoiItemReader<T> extends AbstractExcelItemReader<T> {
     @Override
     protected void openExcelFile(final Resource resource) throws Exception {
         workbookStream = resource.getInputStream();
+        name = resource.getFilename();
         if (!workbookStream.markSupported() && !(workbookStream instanceof PushbackInputStream)) {
             throw new IllegalStateException("InputStream MUST either support mark/reset, or be wrapped as a PushbackInputStream");
         }
